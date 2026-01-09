@@ -12,5 +12,6 @@
     "--query-driver=C:\\Users\\MagnusLund\\.espressif\\tools\\riscv32-esp-elf\\esp-14.2.0_20251107\\riscv32-esp-elf\\bin\\riscv32-esp-elf-gcc.exe",
     "--compile-commands-dir=c:\\Users\\MagnusLund\\Documents\\source\\repos\\esp32-test\\build"
   ],
-  "idf.flashType": "JTAG"
+  "idf.flashType": "UART",
+  "idf.pythonInstallPath": "/opt/esp/python_env/idf6.1_py3.12_env/bin/python"
 }
