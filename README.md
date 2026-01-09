@@ -21,6 +21,5 @@ Battery or power supply.
 - Matter over thread
 - Home assistant compatible
 - 4 states (locked, locking, unlocked, unlocking)
-- OTA
+- OTA updates
 - Minimize electricity usage
-  f
