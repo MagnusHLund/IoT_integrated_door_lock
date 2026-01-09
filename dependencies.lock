@@ -13,7 +13,7 @@ dependencies:
   idf:
     source:
       type: idf
-    version: 6.1.0
+    version: 5.5.2
 direct_dependencies:
 - espressif/mqtt
 - idf
