@@ -12,7 +12,7 @@
 - 1x 12v solenoid door lock
 
 Additionally you need a way to supply 12 volts 2-3 amps. <br>
-Battery or power supply.
+Battery or wall power.
 
 ## Wiring
 
