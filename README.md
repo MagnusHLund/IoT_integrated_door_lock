@@ -16,6 +16,8 @@ Battery or wall power.
 
 ## Wiring
 
+## How to setup in Home assistant
+
 ## Todo
 
 - Matter over thread
