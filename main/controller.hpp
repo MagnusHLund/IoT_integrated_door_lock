@@ -2,11 +2,11 @@
 
 #include "buzzer.hpp"
 #include "lock.hpp"
-#include "matterController.hpp"
+#include "matterManager.hpp"
 
 class Controller {
 public:
-    Controller(Buzzer& buzzer, Lock& lock, MatterController& matterController);
+    Controller(Buzzer& buzzer, Lock& lock, MatterManager& matterManager);
 
     static Controller* getInstance();
     static void staticCallbackUpdateLockState();
@@ -14,7 +14,7 @@ public:
 private:
     Buzzer& buzzer_;
     Lock& lock_;
-    MatterController& matterController_;
+    MatterManager& matterManager_;
 
     static Controller* instance_;
 

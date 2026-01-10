@@ -4,8 +4,8 @@
 
 Controller* Controller::instance_ = nullptr;
 
-Controller::Controller(Buzzer& buzzer, Lock& lock, MatterController& matterController)
-    : buzzer_(buzzer), lock_(lock), matterController_(matterController) {
+Controller::Controller(Buzzer& buzzer, Lock& lock, MatterManager& matterManager)
+    : buzzer_(buzzer), lock_(lock), matterManager_(matterManager) {
     instance_ = this;
 }
 
