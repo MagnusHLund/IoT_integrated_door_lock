@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 class Button {
 public:
     Button(int gpioPin);
@@ -8,4 +10,6 @@ public:
 
 private:
     int pin_;
+    int64_t pressStartMs_ = 0;
+    bool heldTriggered_ = false;
 };

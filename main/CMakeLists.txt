@@ -9,6 +9,6 @@ idf_component_register(
         "reset.cpp"
         "threadManager.cpp"
     INCLUDE_DIRS "."
-    REQUIRES esp_wifi esp_event
+    REQUIRES esp_event esp_timer
     PRIV_REQUIRES esp_driver_gpio
 )
