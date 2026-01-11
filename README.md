@@ -25,4 +25,3 @@ Battery or wall power.
 - 4 states (locked, locking, unlocked, unlocking)
 - OTA updates
 - Minimize electricity usage
-- Pairing mode functionality

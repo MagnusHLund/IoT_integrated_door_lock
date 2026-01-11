@@ -20,6 +20,9 @@ Create this file within this directory. The file looks like this:
 // Buzzer
 #define BUZZER_PIN                  2
 
-// Relay (which controls the door lock)
-#define RELAY_PIN                   9
+// Relay which controls the lock mechanism
+#define LOCK_RELAY_PIN              9
+
+// Button for factory reset
+#define RESET_BUTTON_PIN            5
 ```

@@ -4,11 +4,11 @@
 #include "lock.hpp"
 #include "matterManager.hpp"
 
-class Controller {
+class LockController {
 public:
-    Controller(Buzzer& buzzer, Lock& lock, MatterManager& matterManager);
+    LockController(Buzzer& buzzer, Lock& lock, MatterManager& matterManager);
 
-    static Controller* getInstance();
+    static LockController* getInstance();
     static void staticCallbackUpdateLockState(const char* newState);
 
 private:
@@ -16,7 +16,7 @@ private:
     Lock& lock_;
     MatterManager& matterManager_;
 
-    static Controller* instance_;
+    static LockController* instance_;
 
     void updateLockState(const char* newState);
     void lockDoor();
