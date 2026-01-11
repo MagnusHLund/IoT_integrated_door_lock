@@ -1,5 +1,4 @@
-#pragma once
-
+#include <cstring>
 #include "controller.hpp"
 
 Controller* Controller::instance_ = nullptr;
@@ -13,7 +12,20 @@ Controller* Controller::getInstance() {
     return instance_;
 }
 
-void Controller::updateLockState() {
+/// @brief Called by matter, when lock state needs to be updated
+void Controller::staticCallbackUpdateLockState(const char* newState) {
+    if (instance_) {
+        instance_->updateLockState(newState);
+    }
+}
+
+/// @brief Update lock state based on Matter commands
+void Controller::updateLockState(const char* newState) {
+    if (strcmp(newState, "LOCK") == 0) {
+        lockDoor();
+    } else if (strcmp(newState, "UNLOCK") == 0) {
+        unlockDoor();
+    }
 }
 
 void Controller::lockDoor() {

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "buzzer.hpp"
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"

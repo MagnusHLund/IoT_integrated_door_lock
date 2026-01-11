@@ -9,7 +9,7 @@ public:
     Controller(Buzzer& buzzer, Lock& lock, MatterManager& matterManager);
 
     static Controller* getInstance();
-    static void staticCallbackUpdateLockState();
+    static void staticCallbackUpdateLockState(const char* newState);
 
 private:
     Buzzer& buzzer_;
@@ -18,7 +18,7 @@ private:
 
     static Controller* instance_;
 
-    void updateLockState();
+    void updateLockState(const char* newState);
     void lockDoor();
     void unlockDoor();
 };
