@@ -4,9 +4,7 @@ class Lock {
 public:
     enum class State {
         Locked,
-        Unlocked,
-        Locking,
-        Unlocking
+        Unlocked
     };
     Lock(int gpioPin);
     void lock();

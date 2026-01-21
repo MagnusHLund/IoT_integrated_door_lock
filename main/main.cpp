@@ -10,6 +10,7 @@
 #include "lockController.hpp"
 #include "button.hpp"
 #include "reset.hpp"
+#include "pairing.hpp"
 
 // Forward declarations to ensure pointer types are known
 class Buzzer;
@@ -20,6 +21,8 @@ class LockController;
 class Button;
 class Reset;
 
+class Pairing;
+
 Buzzer* buzzer = nullptr;
 Lock* lock = nullptr;
 
@@ -29,6 +32,8 @@ MqttManager* mqttManager = nullptr;
 LockController* lockController = nullptr;
 Button* button = nullptr;
 Reset* reset = nullptr;
+
+Pairing* pairing = nullptr;
 
 static const char* TAG = "MAIN";
 
@@ -71,17 +76,19 @@ void setup() {
 
     mqttManager->setupTopics(macAddress);
     mqttManager->connect();
+    mqttManager->awaitConnectivity(); 
 
-    lockController = new LockController(*buzzer, *lock);
+    pairing = new Pairing(*wiFiManager, *mqttManager);
+    pairing->pairToHomeAssistant();
+
+    lockController = new LockController(*buzzer, *lock, *mqttManager);
 
     ESP_LOGI(TAG, "Setup complete.");
 }
 
 void loop() {
-    lockController->staticCallbackUpdateLockState("LOCK");
-    vTaskDelay(pdMS_TO_TICKS(5000));
-    lockController->staticCallbackUpdateLockState("UNLOCK");
-    vTaskDelay(pdMS_TO_TICKS(5000));
+    wiFiManager->ensureConnectivity();
+    vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 extern "C" void app_main(void)

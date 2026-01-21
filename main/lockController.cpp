@@ -3,9 +3,12 @@
 
 LockController* LockController::instance_ = nullptr;
 
-LockController::LockController(Buzzer& buzzer, Lock& lock)
-    : buzzer_(buzzer), lock_(lock) {
+LockController::LockController(Buzzer& buzzer, Lock& lock, MqttManager& mqttManager)
+    : buzzer_(buzzer), lock_(lock), mqttManager_(mqttManager) {
     instance_ = this;
+    mqttManager_.setCallback([this](char* topic, uint8_t* data, unsigned int size) {
+        staticCallbackUpdateLockState(topic, data, size);
+    });
 }
 
 LockController* LockController::getInstance() {
@@ -13,8 +16,13 @@ LockController* LockController::getInstance() {
 }
 
 /// @brief Called by MQTT, when lock state needs to be updated
-void LockController::staticCallbackUpdateLockState(const char* newState) {
-    if (instance_) {
+void LockController::staticCallbackUpdateLockState(char* topic, uint8_t* data, unsigned int size) {
+    (void)topic;  // Topic currently unused
+    if (instance_ && data) {
+        // Convert payload to null-terminated string
+        char newState[size + 1];
+        std::memcpy(newState, data, size);
+        newState[size] = '\0';
         instance_->updateLockState(newState);
     }
 }
@@ -31,9 +39,11 @@ void LockController::updateLockState(const char* newState) {
 void LockController::lockDoor() {
     lock_.lock();
     buzzer_.beep(200);
+    mqttManager_.publishMessage("LOCKED");
 }
 
 void LockController::unlockDoor() {
     lock_.unlock();
     buzzer_.beep(200);
+    mqttManager_.publishMessage("UNLOCKED");
 }

@@ -105,8 +105,6 @@ void MqttManager::connect() {
         ESP_LOGE(TAG, "Failed to start MQTT client");
         return;
     }
-    
-    ensureConnectivity();
 }
 
 void MqttManager::setupTopics(const char* macAddress) {
@@ -116,6 +114,13 @@ void MqttManager::setupTopics(const char* macAddress) {
              "homeassistant/lock/%s/set", macAddress);
     snprintf(this->discoveryTopic, sizeof(this->discoveryTopic),
              "homeassistant/lock/%s/config", macAddress);
+}
+
+void MqttManager::awaitConnectivity() {
+    while (!connected) {
+        ESP_LOGI(TAG, "Waiting for MQTT connection...");
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
 }
 
 const char* MqttManager::getDiscoveryTopic() {
@@ -128,17 +133,6 @@ const char* MqttManager::getStateTopic() {
 
 const char* MqttManager::getCommandTopic() {
     return commandTopic;
-}
-
-void MqttManager::ensureConnectivity() {
-    while (!connected) {
-        ESP_LOGI(TAG, "Attempting MQTT connection...");
-        
-        // Wait for connection
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-    
-    // Keep alive - in ESP-IDF this is handled automatically by the MQTT client
 }
 
 void MqttManager::publishMessage(const char* message, const char* topic) {

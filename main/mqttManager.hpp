@@ -35,11 +35,11 @@ public:
     ~MqttManager();
     
     void connect();
+    void awaitConnectivity();
     void setupTopics(const char* macAddress);
     const char* getDiscoveryTopic();
     const char* getStateTopic();
     const char* getCommandTopic();
-    void ensureConnectivity();
     void publishMessage(const char* message, const char* topic = nullptr);
     void setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback);
 };

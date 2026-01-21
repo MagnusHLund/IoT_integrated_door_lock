@@ -10,20 +10,18 @@ Lock::Lock(int gpioPin) : pin_(gpioPin) {
 }
 
 void Lock::lock() {
-    if (state_ == State::Locked || state_ == State::Locking) {
+    if (state_ == State::Locked) {
         return;
     }
-    state_ = State::Locking;
     gpio_set_level(static_cast<gpio_num_t>(pin_), 0);
     vTaskDelay(pdMS_TO_TICKS(100)); // Simulate time taken to lock
     state_ = State::Locked;
 }
 
 void Lock::unlock() {
-    if (state_ == State::Unlocked || state_ == State::Unlocking) {
+    if (state_ == State::Unlocked) {
         return; 
     }
-    state_ = State::Unlocking;
     gpio_set_level(static_cast<gpio_num_t>(pin_), 1);
     vTaskDelay(pdMS_TO_TICKS(100)); 
     state_ = State::Unlocked;
