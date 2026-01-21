@@ -6,6 +6,7 @@
 #include "buzzer.hpp"
 #include "lock.hpp"
 #include "wiFiManager.hpp"
+#include "mqttManager.hpp"
 #include "lockController.hpp"
 #include "button.hpp"
 #include "reset.hpp"
@@ -14,12 +15,16 @@
 class Buzzer;
 class Lock;
 class WiFiManager;
+
 class LockController;
 class Button;
 class Reset;
 
 Buzzer* buzzer = nullptr;
 Lock* lock = nullptr;
+
+WiFiManager* wiFiManager = nullptr;
+MqttManager* mqttManager = nullptr;
 
 LockController* lockController = nullptr;
 Button* button = nullptr;
@@ -53,7 +58,16 @@ void setup() {
         WIFI_DNS_SERVER
     );
 
+    mqttManager = new MqttManager(
+        MQTT_HOSTNAME,
+        MQTT_PORT,
+        MQTT_USERNAME,
+        MQTT_PASSWORD,
+        *wiFiManager
+    );
+
     wiFiManager->connect();
+    mqttManager->connect();
 
     lockController = new LockController(*buzzer, *lock);
 
