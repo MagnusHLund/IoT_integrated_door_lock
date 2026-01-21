@@ -6,7 +6,8 @@ idf_component_register(
         "lockController.cpp"
         "main.cpp"
         "reset.cpp"
+        "wiFiManager.cpp"
     INCLUDE_DIRS "."
-    REQUIRES esp_event esp_timer
+    REQUIRES esp_event esp_timer esp_wifi nvs_flash esp_netif
     PRIV_REQUIRES esp_driver_gpio
 )

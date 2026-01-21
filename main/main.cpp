@@ -1,9 +1,11 @@
 #include "esp_log.h"
+#include "nvs_flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "config.hpp"
 #include "buzzer.hpp"
 #include "lock.hpp"
+#include "wiFiManager.hpp"
 #include "lockController.hpp"
 #include "button.hpp"
 #include "reset.hpp"
@@ -11,12 +13,14 @@
 // Forward declarations to ensure pointer types are known
 class Buzzer;
 class Lock;
+class WiFiManager;
 class LockController;
 class Button;
 class Reset;
 
 Buzzer* buzzer = nullptr;
 Lock* lock = nullptr;
+
 LockController* lockController = nullptr;
 Button* button = nullptr;
 Reset* reset = nullptr;
@@ -28,8 +32,28 @@ bool hasPaired = false;
 void setup() {
     ESP_LOGI(TAG, "Running setup...");
 
+    // Initialize NVS (required for WiFi)
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+    ESP_LOGI(TAG, "NVS initialized");
+
     buzzer = new Buzzer(BUZZER_PIN);
     lock = new Lock(RELAY_LOCK_PIN);
+
+    WiFiManager* wiFiManager = new WiFiManager(
+        WIFI_SSID,
+        WIFI_PASSWORD,
+        WIFI_STATIC_IP,
+        WIFI_GATEWAY,
+        WIFI_SUBNET_MASK,
+        WIFI_DNS_SERVER
+    );
+
+    wiFiManager->connect();
 
     lockController = new LockController(*buzzer, *lock);
 
