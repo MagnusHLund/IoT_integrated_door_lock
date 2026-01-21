@@ -3,41 +3,28 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "config.hpp"
-#include "buzzer.hpp"
 #include "lock.hpp"
 #include "wiFiManager.hpp"
 #include "mqttManager.hpp"
 #include "lockController.hpp"
-#include "button.hpp"
-#include "reset.hpp"
 #include "pairing.hpp"
 
 // Forward declarations to ensure pointer types are known
-class Buzzer;
 class Lock;
-class WiFiManager;
-
-class LockController;
-class Button;
-class Reset;
-
 class Pairing;
+class WiFiManager;
+class MqttManager;
+class LockController;
 
-Buzzer* buzzer = nullptr;
+
 Lock* lock = nullptr;
-
+Pairing* pairing = nullptr;
 WiFiManager* wiFiManager = nullptr;
 MqttManager* mqttManager = nullptr;
-
 LockController* lockController = nullptr;
-Button* button = nullptr;
-Reset* reset = nullptr;
 
-Pairing* pairing = nullptr;
 
 static const char* TAG = "MAIN";
-
-bool hasPaired = false;
 
 void setup() {
     ESP_LOGI(TAG, "Running setup...");
@@ -51,7 +38,6 @@ void setup() {
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "NVS initialized");
 
-    buzzer = new Buzzer(BUZZER_PIN);
     lock = new Lock(RELAY_LOCK_PIN);
 
     WiFiManager* wiFiManager = new WiFiManager(
@@ -81,7 +67,7 @@ void setup() {
     pairing = new Pairing(*wiFiManager, *mqttManager);
     pairing->pairToHomeAssistant();
 
-    lockController = new LockController(*buzzer, *lock, *mqttManager);
+    lockController = new LockController(*lock, *mqttManager);
 
     ESP_LOGI(TAG, "Setup complete.");
 }

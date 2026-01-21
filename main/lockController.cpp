@@ -3,8 +3,8 @@
 
 LockController* LockController::instance_ = nullptr;
 
-LockController::LockController(Buzzer& buzzer, Lock& lock, MqttManager& mqttManager)
-    : buzzer_(buzzer), lock_(lock), mqttManager_(mqttManager) {
+LockController::LockController(Lock& lock, MqttManager& mqttManager)
+    : lock_(lock), mqttManager_(mqttManager) {
     instance_ = this;
     mqttManager_.setCallback([this](char* topic, uint8_t* data, unsigned int size) {
         staticCallbackUpdateLockState(topic, data, size);
@@ -38,12 +38,10 @@ void LockController::updateLockState(const char* newState) {
 
 void LockController::lockDoor() {
     lock_.lock();
-    buzzer_.beep(200);
     mqttManager_.publishMessage("LOCKED");
 }
 
 void LockController::unlockDoor() {
     lock_.unlock();
-    buzzer_.beep(200);
     mqttManager_.publishMessage("UNLOCKED");
 }

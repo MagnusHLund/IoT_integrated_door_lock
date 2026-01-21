@@ -1,11 +1,8 @@
 idf_component_register(
     SRCS
-        "button.cpp"
-        "buzzer.cpp"
         "lock.cpp"
         "lockController.cpp"
         "main.cpp"
-        "reset.cpp"
         "wiFiManager.cpp"
         "mqttManager.cpp"
         "pairing.cpp"
