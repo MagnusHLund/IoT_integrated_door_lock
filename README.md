@@ -20,7 +20,7 @@ Battery or wall power.
 
 ## Todo
 
-- Matter over thread
+- MQTT
 - Home assistant compatible
 - 4 states (locked, locking, unlocked, unlocking)
 - OTA updates

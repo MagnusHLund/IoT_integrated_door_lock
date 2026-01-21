@@ -5,8 +5,6 @@
 #include "buzzer.hpp"
 #include "lock.hpp"
 #include "lockController.hpp"
-#include "threadManager.hpp"
-#include "matterManager.hpp"
 #include "button.hpp"
 #include "reset.hpp"
 
@@ -14,16 +12,12 @@
 class Buzzer;
 class Lock;
 class LockController;
-class ThreadManager;
-class MatterManager;
 class Button;
 class Reset;
 
 Buzzer* buzzer = nullptr;
 Lock* lock = nullptr;
 LockController* lockController = nullptr;
-ThreadManager* threadManager = nullptr;
-MatterManager* matterManager = nullptr;
 Button* button = nullptr;
 Reset* reset = nullptr;
 
@@ -36,30 +30,13 @@ void setup() {
 
     buzzer = new Buzzer(BUZZER_PIN);
     lock = new Lock(RELAY_LOCK_PIN);
-    button = new Button(RESET_BUTTON_PIN);
-    reset = new Reset();
-    
-    threadManager = new ThreadManager();
-    matterManager = new MatterManager();
 
-    lockController = new LockController(*buzzer, *lock, *matterManager);
+    lockController = new LockController(*buzzer, *lock);
 
     ESP_LOGI(TAG, "Setup complete.");
 }
 
 void loop() {
-    if(button->isHeld(5000)) {
-        ESP_LOGW(TAG, "Factory reset initiated.");
-        reset->performFactoryReset();
-        return;
-    }
-
-    if(!hasPaired) {
-        // TODO: Pairing logic for Matter
-        vTaskDelay(pdMS_TO_TICKS(500)); // Yield to avoid watchdog while unpaired
-        return;
-    }
-
     lockController->staticCallbackUpdateLockState("LOCK");
     vTaskDelay(pdMS_TO_TICKS(5000));
     lockController->staticCallbackUpdateLockState("UNLOCK");

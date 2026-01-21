@@ -2,11 +2,10 @@
 
 #include "buzzer.hpp"
 #include "lock.hpp"
-#include "matterManager.hpp"
 
 class LockController {
 public:
-    LockController(Buzzer& buzzer, Lock& lock, MatterManager& matterManager);
+    LockController(Buzzer& buzzer, Lock& lock);
 
     static LockController* getInstance();
     static void staticCallbackUpdateLockState(const char* newState);
@@ -14,7 +13,6 @@ public:
 private:
     Buzzer& buzzer_;
     Lock& lock_;
-    MatterManager& matterManager_;
 
     static LockController* instance_;
 
