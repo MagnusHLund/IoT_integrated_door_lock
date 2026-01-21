@@ -67,6 +67,9 @@ void setup() {
     );
 
     wiFiManager->connect();
+    const char* macAddress = wiFiManager->getMacAddress(true);
+
+    mqttManager->setupTopics(macAddress);
     mqttManager->connect();
 
     lockController = new LockController(*buzzer, *lock);
