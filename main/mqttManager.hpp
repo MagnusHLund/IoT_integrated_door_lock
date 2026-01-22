@@ -19,6 +19,10 @@ private:
     const char* mqttUsername;
     const char* mqttPassword;
     
+    bool useTLS;
+    const uint8_t* caCert;
+    int caCertLen;
+    
     bool connected;
     
     // Callback function pointer for message handling
@@ -34,6 +38,7 @@ public:
     
     ~MqttManager();
     
+    void enableTLS(const uint8_t* caCert, int caCertLen);
     void connect();
     void awaitConnectivity();
     void setupTopics(const char* macAddress);

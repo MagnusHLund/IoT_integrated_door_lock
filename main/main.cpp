@@ -9,6 +9,10 @@
 #include "lockController.hpp"
 #include "pairing.hpp"
 
+// CA certificate embedded from file
+extern const uint8_t ca_cert_pem_start[] asm("_binary_ca_cert_pem_start");
+extern const uint8_t ca_cert_pem_end[] asm("_binary_ca_cert_pem_end");
+
 // Forward declarations to ensure pointer types are known
 class Lock;
 class Pairing;
@@ -56,6 +60,10 @@ void setup() {
         MQTT_PASSWORD,
         *wiFiManager
     );
+
+    // Enable TLS for MQTT connection
+    int caCertLen = ca_cert_pem_end - ca_cert_pem_start;
+    mqttManager->enableTLS(ca_cert_pem_start, caCertLen);
 
     wiFiManager->connect();
     const char* macAddress = wiFiManager->getMacAddress(true);

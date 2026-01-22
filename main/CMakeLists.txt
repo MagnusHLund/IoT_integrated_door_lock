@@ -7,6 +7,8 @@ idf_component_register(
         "mqttManager.cpp"
         "pairing.cpp"
     INCLUDE_DIRS "."
+    EMBED_TXTFILES
+        "certs/ca_cert.pem"
     REQUIRES esp_event esp_timer esp_wifi nvs_flash esp_netif mqtt
     PRIV_REQUIRES esp_driver_gpio
 )

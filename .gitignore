@@ -79,3 +79,6 @@ Desktop.ini
 
 # Project configuration file
 config.hpp
+
+# Certificate for secure MQTT connection
+*/certs/ca_cert.pem

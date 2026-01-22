@@ -12,6 +12,9 @@ MqttManager::MqttManager(const char* serverHostname, int serverPort,
       serverPort(serverPort),
       mqttUsername(mqttUsername),
       mqttPassword(mqttPassword),
+      useTLS(false),
+      caCert(nullptr),
+      caCertLen(0),
       connected(false) {
 }
 
@@ -72,10 +75,22 @@ void MqttManager::mqttEventHandler(void* handlerArgs, esp_event_base_t base,
     }
 }
 
+void MqttManager::enableTLS(const uint8_t* caCert, int caCertLen) {
+    this->useTLS = true;
+    this->caCert = caCert;
+    this->caCertLen = caCertLen;
+    ESP_LOGI(TAG, "TLS enabled for MQTT");
+}
+
 void MqttManager::connect() {
     // Build MQTT URI
     char uri[128];
-    snprintf(uri, sizeof(uri), "mqtt://%s:%d", serverHostname, serverPort);
+    if (useTLS) {
+        // Use mqtts:// for TLS connection
+        snprintf(uri, sizeof(uri), "mqtts://%s:%d", serverHostname, serverPort);
+    } else {
+        snprintf(uri, sizeof(uri), "mqtt://%s:%d", serverHostname, serverPort);
+    }
     
     // Configure MQTT client
     esp_mqtt_client_config_t mqttConfig = {};
@@ -84,6 +99,15 @@ void MqttManager::connect() {
     mqttConfig.credentials.authentication.password = mqttPassword;
     mqttConfig.buffer.size = 512;
     mqttConfig.buffer.out_size = 512;
+    
+    // Configure TLS if enabled
+    if (useTLS && caCert != nullptr) {
+        mqttConfig.broker.verification.certificate = (const char*)caCert;
+        mqttConfig.broker.verification.certificate_len = caCertLen;
+        // Optional: Enable/disable certificate verification
+        // mqttConfig.broker.verification.skip_cert_common_name_check = false;
+        ESP_LOGI(TAG, "Configured with TLS certificate");
+    }
     
     // Use MAC address as client ID
     char* macAddress = wiFiManager.getMacAddress(true);
