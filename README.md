@@ -17,4 +17,10 @@ Battery or wall power.
 
 ## How to setup
 
-Create a cert file within `/main/certs/ca_cert.key`, which is valid for your home assistant MQTT setup.
+Configure the configuration file. Read the README file within the main/ directory.
+
+Flash the code to your ESP32.
+
+Within home assistant and within Zigbee2MQTT, set permit join.
+
+The device will then be available within home assistant.

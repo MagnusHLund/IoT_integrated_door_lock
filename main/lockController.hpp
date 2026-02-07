@@ -1,18 +1,18 @@
 #pragma once
 
 #include "lock.hpp"
-#include "mqttManager.hpp"
+#include "zigbeeManager.hpp"
 
 class LockController {
 public:
-    LockController(Lock& lock, MqttManager& mqttManager);
+    LockController(Lock& lock, ZigbeeManager& zigbeeManager);
 
     static LockController* getInstance();
-    static void staticCallbackUpdateLockState(char* topic, uint8_t* data, unsigned int size);
+    static void staticCallbackUpdateLockState(char* command);
 
 private:
     Lock& lock_;
-    MqttManager& mqttManager_;
+    ZigbeeManager& zigbeeManager_;
 
     static LockController* instance_;
 

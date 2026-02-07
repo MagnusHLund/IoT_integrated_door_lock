@@ -3,11 +3,11 @@
 
 LockController* LockController::instance_ = nullptr;
 
-LockController::LockController(Lock& lock, MqttManager& mqttManager)
-    : lock_(lock), mqttManager_(mqttManager) {
+LockController::LockController(Lock& lock, ZigbeeManager& zigbeeManager)
+    : lock_(lock), zigbeeManager_(zigbeeManager) {
     instance_ = this;
-    mqttManager_.setCallback([this](char* topic, uint8_t* data, unsigned int size) {
-        staticCallbackUpdateLockState(topic, data, size);
+    zigbeeManager_.setCommandCallback([this](char* command) {
+        staticCallbackUpdateLockState(command);
     });
 }
 
@@ -15,19 +15,14 @@ LockController* LockController::getInstance() {
     return instance_;
 }
 
-/// @brief Called by MQTT, when lock state needs to be updated
-void LockController::staticCallbackUpdateLockState(char* topic, uint8_t* data, unsigned int size) {
-    (void)topic;  // Topic currently unused
-    if (instance_ && data) {
-        // Convert payload to null-terminated string
-        char newState[size + 1];
-        std::memcpy(newState, data, size);
-        newState[size] = '\0';
-        instance_->updateLockState(newState);
+/// @brief Called by Zigbee when lock state needs to be updated
+void LockController::staticCallbackUpdateLockState(char* command) {
+    if (instance_ && command) {
+        instance_->updateLockState(command);
     }
 }
 
-/// @brief Update lock state based on MQTT commands
+/// @brief Update lock state based on Zigbee commands
 void LockController::updateLockState(const char* newState) {
     if (strcmp(newState, "LOCK") == 0) {
         lockDoor();
@@ -38,10 +33,10 @@ void LockController::updateLockState(const char* newState) {
 
 void LockController::lockDoor() {
     lock_.lock();
-    mqttManager_.publishMessage("LOCKED");
+    zigbeeManager_.publishLockState("LOCKED");
 }
 
 void LockController::unlockDoor() {
     lock_.unlock();
-    mqttManager_.publishMessage("UNLOCKED");
+    zigbeeManager_.publishLockState("UNLOCKED");
 }
