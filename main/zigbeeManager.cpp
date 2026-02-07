@@ -3,9 +3,12 @@
 #include "esp_log.h"
 #include "esp_zigbee_core.h"
 #include "ha/esp_zigbee_ha_standard.h"
+#include "zcl/esp_zigbee_zcl_basic.h"
 #include "zcl_utility.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"
+#include "config.hpp"
 #include <cstring>
 
 static const char* TAG = "ZigbeeManager";
@@ -15,6 +18,8 @@ static const char* TAG = "ZigbeeManager";
 
 static char kManufacturerName[] = "\x0A" "MagnusLund";
 static char kModelIdentifier[] = "\x0A" "DoorLockC6";
+static char kProductLabel[] = "\x0E" "ZB Door Lock";
+static char kSwBuildId[] = "\x06" "1.0.0";
 
 #define ESP_ZB_DEFAULT_RADIO_CONFIG()              \
     {                                               \
@@ -27,6 +32,7 @@ static char kModelIdentifier[] = "\x0A" "DoorLockC6";
     }
 
 ZigbeeManager* ZigbeeManager::instance_ = nullptr;
+static bool s_factory_reset_requested = false;
 
 ZigbeeManager::ZigbeeManager() : connected(false) {
     instance_ = this;
@@ -120,6 +126,56 @@ static esp_err_t zb_action_handler(esp_zb_core_action_callback_id_t callback_id,
     return ret;
 }
 
+static void set_basic_device_info(void)
+{
+    uint8_t hw_version = 1;
+    uint8_t power_source = ESP_ZB_ZCL_BASIC_POWER_SOURCE_MAINS_SINGLE_PHASE;
+    bool device_enabled = true;
+
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_MANUFACTURER_NAME_ID,
+                                 kManufacturerName,
+                                 false);
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_MODEL_IDENTIFIER_ID,
+                                 kModelIdentifier,
+                                 false);
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_PRODUCT_LABEL_ID,
+                                 kProductLabel,
+                                 false);
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_SW_BUILD_ID,
+                                 kSwBuildId,
+                                 false);
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_HW_VERSION_ID,
+                                 &hw_version,
+                                 false);
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_POWER_SOURCE_ID,
+                                 &power_source,
+                                 false);
+    esp_zb_zcl_set_attribute_val(ZigbeeManager::ENDPOINT,
+                                 ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+                                 ESP_ZB_ZCL_CLUSTER_SERVER_ROLE,
+                                 ESP_ZB_ZCL_ATTR_BASIC_DEVICE_ENABLED_ID,
+                                 &device_enabled,
+                                 false);
+}
+
 static void zigbee_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -129,6 +185,12 @@ static void zigbee_task(void *pvParameters)
     zb_nwk_cfg.install_code_policy = INSTALLCODE_POLICY_ENABLE;
     zb_nwk_cfg.nwk_cfg.zczr_cfg.max_children = 10;
     esp_zb_init(&zb_nwk_cfg);
+
+    if (s_factory_reset_requested) {
+        ESP_LOGW(TAG, "Factory reset requested, erasing Zigbee storage");
+        esp_zb_factory_reset();
+        vTaskDelete(NULL);
+    }
 
     esp_zb_on_off_light_cfg_t light_cfg = ESP_ZB_DEFAULT_ON_OFF_LIGHT_CONFIG();
     esp_zb_ep_list_t *on_off_ep = esp_zb_on_off_light_ep_create(ZigbeeManager::ENDPOINT, &light_cfg);
@@ -140,6 +202,7 @@ static void zigbee_task(void *pvParameters)
     esp_zcl_utility_add_ep_basic_manufacturer_info(on_off_ep, ZigbeeManager::ENDPOINT, &info);
 
     esp_zb_device_register(on_off_ep);
+    set_basic_device_info();
     esp_zb_core_action_handler_register(zb_action_handler);
     esp_zb_set_primary_network_channel_set(ESP_ZB_PRIMARY_CHANNEL_MASK);
     ESP_ERROR_CHECK(esp_zb_start(false));
@@ -148,6 +211,29 @@ static void zigbee_task(void *pvParameters)
 
 void ZigbeeManager::start() {
     ESP_LOGI(TAG, "Initializing Zigbee stack");
+
+    gpio_config_t io_conf = {};
+    io_conf.pin_bit_mask = (1ULL << FACTORY_RESET_PIN);
+    io_conf.mode = GPIO_MODE_INPUT;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    gpio_config(&io_conf);
+
+    const int check_interval_ms = 100;
+    int remaining_ms = 5;
+    s_factory_reset_requested = true;
+    while (remaining_ms > 0) {
+        if (gpio_get_level(static_cast<gpio_num_t>(FACTORY_RESET_PIN)) != 0) {
+            s_factory_reset_requested = false;
+            break;
+        }
+        vTaskDelay(pdMS_TO_TICKS(check_interval_ms));
+        remaining_ms -= check_interval_ms;
+    }
+    if (s_factory_reset_requested) {
+        ESP_LOGW(TAG, "Factory reset pin held, will reset Zigbee storage");
+    }
 
     esp_zb_platform_config_t config = {};
     config.radio_config.radio_mode = ZB_RADIO_MODE_NATIVE;
