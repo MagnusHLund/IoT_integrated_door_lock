@@ -8,4 +8,8 @@ Create this file within this directory. The file looks like this:
 
 // Relay which controls the lock mechanism
 #define RELAY_LOCK_PIN              9
+
+// Factory reset input (active-low). Hold during boot to reset Zigbee storage.
+#define FACTORY_RESET_PIN           4
+
 ```
