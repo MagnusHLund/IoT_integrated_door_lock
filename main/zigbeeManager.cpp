@@ -21,13 +21,13 @@ static char kModelIdentifier[] = "\x0A" "DoorLockC6";
 static char kProductLabel[] = "\x0E" "ZB Door Lock";
 static char kSwBuildId[] = "\x06" "1.0.0";
 
-#define ESP_ZB_DEFAULT_RADIO_CONFIG()              \
-    {                                               \
-        .radio_mode = ZB_RADIO_MODE_NATIVE,         \
+#define ESP_ZB_DEFAULT_RADIO_CONFIG()       \
+    {                                       \
+        .radio_mode = ZB_RADIO_MODE_NATIVE, \
     }
 
-#define ESP_ZB_DEFAULT_HOST_CONFIG()               \
-    {                                               \
+#define ESP_ZB_DEFAULT_HOST_CONFIG()                          \
+    {                                                         \
         .host_connection_mode = ZB_HOST_CONNECTION_MODE_NONE, \
     }
 

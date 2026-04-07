@@ -1,5 +1,6 @@
 idf_component_register(
     SRCS
+        "keypad.cpp"
         "lock.cpp"
         "lockController.cpp"
         "main.cpp"

@@ -32,9 +32,13 @@ extern "C" void app_main(void)
     init_nvs_default();
     ESP_LOGI(TAG, "NVS initialized");
 
-    lock = new Lock(RELAY_LOCK_PIN);
     zigbeeManager = new ZigbeeManager();
+
+    lock = new Lock(RELAY_LOCK_PIN);
     lockController = new LockController(*lock, *zigbeeManager);
+
+    keypad = new Keypad(/* The keypad pins */);
+    keypadController = new KeypadController(*keypad, *zigbeeManager);
 
     zigbeeManager->start();
 
