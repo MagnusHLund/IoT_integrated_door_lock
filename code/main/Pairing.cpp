@@ -1,62 +1,48 @@
-class Pairing {
-  private: 
-    WiFiManager& wiFiManager;
-    MqttManager& mqttManager;
+#pragma once
 
-    Button& button;
-    Light& light;
+#include "Pairing.hpp"
 
-  public:
-    Pairing(WiFiManager& wiFiManager, MqttManager& mqttManager, Button& button, Light& light) 
-      : wiFiManager(wiFiManager), mqttManager(mqttManager), button(button), light(light) {}
+Pairing::Pairing(WiFiManager& wiFiManager, MqttManager& mqttManager, Buzzer& buzzer) 
+  : wiFiManager(wiFiManager), mqttManager(mqttManager), buzzer(buzzer) {}
 
-    void init() {
-      pairToHomeAssistant();
-    }
+void Pairing::init() {
+  button.init();
+  light.init();
 
-    void handlePairingButton() {
-      int fiveSeconds = 5000;
+  pairToHomeAssistant();
+}
 
-      if (button.isHeld(fiveSeconds)) {
-        pairToHomeAssistant();
-        light.blink(125, 5);
-      }
-    }
+void Pairing::pairToHomeAssistant() {
+  char* macAddress = wiFiManager.getMacAddress(true);
+  char* message = formatDiscoveryMessageJson(macAddress);
 
-    void pairToHomeAssistant() {
-      char* macAddress = wiFiManager.getMacAddress(true);
-      char* message = formatDiscoveryMessageJson(macAddress);
+  mqttManager.publishMessage(message, mqttManager.getDiscoveryTopic());
+  Serial.println("Sent discovery message");
+}
 
-      mqttManager.publishMessage(message, mqttManager.getDiscoveryTopic());
-      Serial.println("Sent discovery message");
 
-      // TODO: Buzz twice.
-    }
+char* Pairing::formatDiscoveryMessageJson(char* macAddress) {
+  StaticJsonDocument<512> doc;
 
-  private:
-    char* formatDiscoveryMessageJson(char* macAddress) {
-      StaticJsonDocument<512> doc;
+  const char* commandTopic = mqttManager.getCommandTopic();
+  const char* stateTopic = mqttManager.getStateTopic();
 
-      const char* commandTopic = mqttManager.getCommandTopic();
-      const char* stateTopic = mqttManager.getStateTopic();
+  doc["name"]           = "Magnus Lund Door Lock";
+  doc["unique_id"]      = macAddress; 
+  doc["command_topic"]  = commandTopic;
+  doc["state_topic"]    = stateTopic;
+  doc["payload_unlock"] = "UNLOCK";
+  doc["payload_lock"]   = "LOCK";
+  doc["state_unlocked"] = "UNLOCKED";
+  doc["state_locked"]   = "LOCKED";
 
-      doc["name"]           = "Arduino Door Lock";
-      doc["unique_id"]      = macAddress; 
-      doc["command_topic"]  = commandTopic;
-      doc["state_topic"]    = stateTopic;
-      doc["payload_unlock"] = "UNLOCK";
-      doc["payload_lock"]   = "LOCK";
-      doc["state_unlocked"] = "UNLOCKED";
-      doc["state_locked"]   = "LOCKED";
+  JsonObject device = doc.createNestedObject("device");
+  device["identifiers"] = macAddress;
+  device["manufacturer"] = "Magnus Lund";
+  device["model"] = "ESP32-C6";
 
-      JsonObject device = doc.createNestedObject("device");
-      device["identifiers"] = macAddress;
-      device["manufacturer"] = "Arduino";
-      device["model"] = "Uno R4 WiFi";
+  static char buffer[512];
+  serializeJson(doc, buffer);
 
-      static char buffer[512];
-      serializeJson(doc, buffer);
-
-      return buffer;
-    }
-};
+  return buffer;
+}
