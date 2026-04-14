@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 class Keypad {
   private:
@@ -13,7 +14,7 @@ class Keypad {
     byte rowPins[ROWS];
     byte colPins[COLS];
 
-    static constexpr char keys[ROWS][COLS] = {
+    static constexpr char keymap[ROWS][COLS] = {
       {'1', '2', '3', 'A'},
       {'4', '5', '6', 'B'},
       {'7', '8', '9', 'C'},
@@ -24,4 +25,4 @@ class Keypad {
     Keypad(const byte rowPins[ROWS], const byte colPins[COLS]);
     void init();
     char scan();
-}
+};

@@ -6,14 +6,14 @@
 
 class Pairing {
   private:
-    WiFiManager& wiFiManager;
+    WiFiManager& wifiManager;
     MqttManager& mqttManager;
     Buzzer& buzzer;
 
     char* formatDiscoveryMessageJson(char* macAddress);
 
   public:
-    Pairing(WiFiManager& wiFiManager, MqttManager& mqttManager, Buzzer& buzzer);
+    Pairing(WiFiManager& wifiManager, MqttManager& mqttManager, Buzzer& buzzer);
 
     void init();
     void pairToHomeAssistant();

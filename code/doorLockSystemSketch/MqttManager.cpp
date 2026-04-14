@@ -2,8 +2,8 @@
 
 #include "MqttManager.h"
 
-MqttManager::MqttManager(const char* serverHostname, int serverPort, const char* mqttUsername, const char* mqttPassword, WiFiManager& wiFiManager)
-      : client(wifiClient), serverHostname(serverHostname), serverPort(serverPort), mqttUsername(mqttUsername), mqttPassword(mqttPassword), wiFiManager(wiFiManager) {}
+MqttManager::MqttManager(const char* serverHostname, int serverPort, const char* mqttUsername, const char* mqttPassword, WiFiManager& wifiManager)
+      : client(wifiClient), serverHostname(serverHostname), serverPort(serverPort), mqttUsername(mqttUsername), mqttPassword(mqttPassword), wifiManager(wifiManager) {}
 
 void MqttManager::connect() {
   client.setBufferSize(512);
@@ -21,15 +21,15 @@ void MqttManager::setupTopics(const char* macAddress) {
             "homeassistant/lock/%s/config", macAddress);
 }
 
-char* MqttManager::getDiscoveryTopic() {
+const char* MqttManager::getDiscoveryTopic() {
   return discoveryTopic;
 }
 
-char* MqttManager::getStateTopic() {
+const char* MqttManager::getStateTopic() {
   return stateTopic;
 }
 
-char* MqttManager::getCommandTopic() {
+const char* MqttManager::getCommandTopic() {
   return commandTopic;
 }
 
@@ -37,7 +37,7 @@ void MqttManager::ensureConnectivity() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
 
-    char* macAddress = wiFiManager.getMacAddress(true);
+    char* macAddress = wifiManager.getMacAddress(true);
 
     if (client.connect(macAddress, mqttUsername, mqttPassword)) {
       Serial.println("connected");
@@ -52,7 +52,7 @@ void MqttManager::ensureConnectivity() {
   client.loop(); // Keep alive
 }
 
-void MqttManager::publishMessage(const char* message, const char* topic = nullptr) {
+void MqttManager::publishMessage(const char* message, const char* topic) {
   if(topic == nullptr) {
     topic = stateTopic;
   }

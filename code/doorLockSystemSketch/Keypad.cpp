@@ -11,7 +11,7 @@ Keypad::Keypad(const byte rowPins[ROWS], const byte colPins[COLS]) {
     }
 }
 
-void Keypad::begin() {
+void Keypad::init() {
     for (byte r = 0; r < ROWS; r++) {
         pinMode(rowPins[r], OUTPUT);
         digitalWrite(rowPins[r], HIGH);

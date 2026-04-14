@@ -2,18 +2,16 @@
 
 #include "Pairing.h"
 
-Pairing::Pairing(WiFiManager& wiFiManager, MqttManager& mqttManager, Buzzer& buzzer) 
-  : wiFiManager(wiFiManager), mqttManager(mqttManager), buzzer(buzzer) {}
+Pairing::Pairing(WiFiManager& wifiManager, MqttManager& mqttManager, Buzzer& buzzer) 
+  : wifiManager(wifiManager), mqttManager(mqttManager), buzzer(buzzer) {}
 
 void Pairing::init() {
-  button.init();
-  light.init();
-
+  buzzer.buzz(200);
   pairToHomeAssistant();
 }
 
 void Pairing::pairToHomeAssistant() {
-  char* macAddress = wiFiManager.getMacAddress(true);
+  char* macAddress = wifiManager.getMacAddress(true);
   char* message = formatDiscoveryMessageJson(macAddress);
 
   mqttManager.publishMessage(message, mqttManager.getDiscoveryTopic());

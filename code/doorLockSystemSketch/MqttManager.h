@@ -2,6 +2,8 @@
 
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include "WiFiManager.h"
+#include "WiFi.h"
 
 class MqttManager {
   private:
@@ -12,7 +14,7 @@ class MqttManager {
     WiFiClient wifiClient;
     PubSubClient client;
 
-    WiFiManager& wiFiManager;
+    WiFiManager& wifiManager;
 
     const char* serverHostname;
     int serverPort;
@@ -20,65 +22,13 @@ class MqttManager {
     const char* mqttPassword;
 
   public:
-    MqttManager(const char* serverHostname, int serverPort, const char* mqttUsername, const char* mqttPassword, WiFiManager& wiFiManager)
-      : client(wifiClient), serverHostname(serverHostname), serverPort(serverPort), mqttUsername(mqttUsername), mqttPassword(mqttPassword), wiFiManager(wiFiManager) {}
-
-    void connect() {
-      client.setBufferSize(512);
-      client.setServer(serverHostname, serverPort);
-
-      ensureConnectivity();
-    }
-
-    void setupTopics(const char* macAddress) {
-      snprintf(this->stateTopic, sizeof(this->stateTopic),
-               "homeassistant/lock/%s/state", macAddress);
-      snprintf(this->commandTopic, sizeof(this->commandTopic),
-               "homeassistant/lock/%s/set", macAddress);
-      snprintf(this->discoveryTopic, sizeof(this->discoveryTopic),
-               "homeassistant/lock/%s/config", macAddress);
-    }
-
-    const char* getDiscoveryTopic() {
-      return discoveryTopic;
-    }
-
-    const char* getStateTopic() {
-      return stateTopic;
-    }
-
-    const char* getCommandTopic() {
-      return commandTopic;
-    }
-
-    void ensureConnectivity() {
-      while (!client.connected()) {
-        Serial.print("Attempting MQTT connection...");
-
-        char* macAddress = wiFiManager.getMacAddress(true);
-
-        if (client.connect(macAddress, mqttUsername, mqttPassword)) {
-          Serial.println("connected");
-          client.subscribe(getCommandTopic()); 
-        } else {
-          Serial.print("failed, rc=");
-          Serial.print(client.state());
-          Serial.println(" try again in 5 seconds");
-          delay(5000);
-        }
-      }
-      client.loop(); // Keep alive
-    }
-
-    void publishMessage(const char* message, const char* topic = nullptr) {
-      if(topic == nullptr) {
-        topic = stateTopic;
-      }
-
-      bool success = client.publish(topic, message, true);
-    }
-  
-    void setCallback(void (*callback)(char* topic, byte* payload, unsigned int length)) {
-      client.setCallback(callback);
-    }
+    MqttManager(const char* serverHostname, int serverPort, const char* mqttUsername, const char* mqttPassword, WiFiManager& wifiManager);
+    void connect();
+    void setupTopics(const char* macAddress);
+    const char* getDiscoveryTopic();
+    const char* getStateTopic();
+    const char* getCommandTopic();
+    void ensureConnectivity();
+    void publishMessage(const char* message, const char* topic);
+    void setCallback(void (*callback)(char* topic, byte* payload, unsigned int length));
 };
