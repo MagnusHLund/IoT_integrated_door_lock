@@ -1,13 +1,12 @@
 #pragma once
+#include "Keypad.h"
 
 class KeypadController {
-  public:
-    KeypadController(Keypad& keypad, MqttManager& mqttManager) : keypad(keypad), mqttManager(mqttManager) {};
+public:
+    KeypadController(Keypad& keypad, MqttManager& mqttManager);
+    void update();          // call every loop
 
-    void init();
-    char getKey();
-
-  private:
-    Keypad& keypad;
-    MqttManager& mqttManager;
+private:
+    Keypad& _keypad;
+    MqttManager& _mqttManager;
 };

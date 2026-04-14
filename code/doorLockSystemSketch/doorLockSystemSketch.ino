@@ -4,6 +4,8 @@
 #include "MqttManager.h"
 #include "LockController.h"
 #include "Pairing.h"
+#include "Lock.h"
+#include "KeypadController.h"
 
 WiFiManager wifiManager(WIFI_SSID, WIFI_PASSWORD, WIFI_STATIC_IP, WIFI_GATEWAY, WIFI_SUBNET_MASK, WIFI_DNS_SERVER);
 MqttManager mqttManager(MQTT_HOSTNAME, MQTT_PORT, MQTT_USERNAME, MQTT_PASSWORD, wifiManager);

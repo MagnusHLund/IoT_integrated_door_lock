@@ -1,12 +1,11 @@
 #pragma once
-#include "Keypad.h"
+#include "Lock.h"
 
-class KeypadController {
+class LockController {
 public:
-    KeypadController(Keypad& keypad, MqttManager& mqttManager);
-    void update();          // call every loop
+    LockController(Lock& lock, MqttManager& mqttManager);
 
 private:
-    Keypad& _keypad;
+    Lock& _lock;
     MqttManager& _mqttManager;
 };
