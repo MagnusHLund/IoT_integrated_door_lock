@@ -13,7 +13,9 @@ Pairing pairing(wifiManager, mqttManager, buzzer)
 Lock lock(RELAY_LOCK_PIN);
 LockController lockController(lock, mqttManager);
 
-Keypad keypad(KEYPAD_ROW_1_PIN, KEYPAD_ROW_2_PIN, KEYPAD_ROW_3_PIN, KEYPAD_ROW_4_PIN, KEYPAD_COL_1_PIN, KEYPAD_COL_2_PIN, KEYPAD_COL_3_PIN, KEYPAD_COL_4_PIN);
+byte keypadRowPins[4] = {KEYPAD_ROW_1_PIN, KEYPAD_ROW_2_PIN, KEYPAD_ROW_3_PIN, KEYPAD_ROW_4_PIN};
+byte keypadColPins[4] = {KEYPAD_COL_1_PIN, KEYPAD_COL_2_PIN, KEYPAD_COL_3_PIN, KEYPAD_COL_4_PIN};
+Keypad keypad(keypadRowPins, keypadColPins);
 KeypadController keypadController(keypad, mqttManager);
 
 void setup() {
