@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pairing.hpp"
+#include "Pairing.h"
 
 Pairing::Pairing(WiFiManager& wiFiManager, MqttManager& mqttManager, Buzzer& buzzer) 
   : wiFiManager(wiFiManager), mqttManager(mqttManager), buzzer(buzzer) {}

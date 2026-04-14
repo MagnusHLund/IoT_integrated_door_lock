@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MqttManager.hpp"
+#include "MqttManager.h"
 
 MqttManager::MqttManager(const char* serverHostname, int serverPort, const char* mqttUsername, const char* mqttPassword, WiFiManager& wiFiManager)
       : client(wifiClient), serverHostname(serverHostname), serverPort(serverPort), mqttUsername(mqttUsername), mqttPassword(mqttPassword), wiFiManager(wiFiManager) {}

@@ -1,6 +1,6 @@
 # Setup
 
-You are missing a gitignored file, called `config.hpp`. <br>
+You are missing a gitignored file, called `config.h`. <br>
 Create this file within this directory. The file looks like this:
 
 ```
@@ -16,4 +16,18 @@ Create this file within this directory. The file looks like this:
 #define KEYPAD_COL_2_PIN 1
 #define KEYPAD_COL_3_PIN 0
 #define KEYPAD_COL_4_PIN 7
+
+#define BUZZER_PIN 2
+
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
+#define WIFI_STATIC_IP "x.x.x.x"
+#define WIFI_SUBNET_MASK "x.x.x.x"
+#define WIFI_GATEWAY "x.x.x.x"
+#define WIFI_DNS_SERVER "x.x.x.x"
+
+#define MQTT_HOSTNAME "x.x.x.x"
+#define MQTT_PORT 1883
+#define MQTT_USERNAME ""
+#define MQTT_PASSWORD ""
 ```

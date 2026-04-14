@@ -1,4 +1,4 @@
-#include "WiFiManager.hpp"
+#include "WiFiManager.h"
 
 WiFiManager::WiFiManager(const char* wifiSsid, const char* wifiPassword, String localIP, String gateway, String subnet, String dnsServer)
   : wifiSsid(wifiSsid), wifiPassword(wifiPassword) {
