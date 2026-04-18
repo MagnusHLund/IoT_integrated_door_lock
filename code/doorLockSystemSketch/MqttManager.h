@@ -7,9 +7,10 @@
 
 class MqttManager {
   private:
-    char stateTopic[64]; // State of the Arduino
+    char stateTopic[64]; // Current state of the lock
     char commandTopic[64]; // State change from Home Assistant
     char discoveryTopic[64]; // Used for Home Assistant discovery
+    char codeSubmissionTopic[64]; // Used for submitting codes from the keypad
 
     WiFiClient wifiClient;
     PubSubClient client;
@@ -28,7 +29,8 @@ class MqttManager {
     const char* getDiscoveryTopic();
     const char* getStateTopic();
     const char* getCommandTopic();
+    const char* getCodeSubmissionTopic();
     void ensureConnectivity();
-    void publishMessage(const char* message, const char* topic);
+    void publishMessage(const char* message, const char* topic, bool retain = true);
     void setCallback(void (*callback)(char* topic, byte* payload, unsigned int length));
 };

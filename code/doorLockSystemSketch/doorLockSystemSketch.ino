@@ -33,6 +33,7 @@ void setup() {
 
   const char* macAddress = wifiManager.getMacAddress(true);
   mqttManager.setupTopics(macAddress);
+  keypadController.init();
 
   pairing.init();
 }
@@ -40,6 +41,7 @@ void setup() {
 void loop() {
   buzzer.update();
   mqttManager.ensureConnectivity();
+  keypadController.update();
 
   // WiFi can be kept alive longer than MQTT
   if (millis() - lastCheck > 5000) {

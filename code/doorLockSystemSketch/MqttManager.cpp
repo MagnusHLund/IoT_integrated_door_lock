@@ -19,6 +19,8 @@ void MqttManager::setupTopics(const char* macAddress) {
             "homeassistant/lock/%s/set", macAddress);
   snprintf(this->discoveryTopic, sizeof(this->discoveryTopic),
             "homeassistant/lock/%s/config", macAddress);
+  snprintf(this->codeSubmissionTopic, sizeof(this->codeSubmissionTopic),
+            "homeassistant/lock/%s/code", macAddress);
 }
 
 const char* MqttManager::getDiscoveryTopic() {
@@ -31,6 +33,10 @@ const char* MqttManager::getStateTopic() {
 
 const char* MqttManager::getCommandTopic() {
   return commandTopic;
+}
+
+const char* MqttManager::getCodeSubmissionTopic() {
+  return codeSubmissionTopic;
 }
 
 void MqttManager::ensureConnectivity() {
@@ -52,12 +58,12 @@ void MqttManager::ensureConnectivity() {
   client.loop(); // Keep alive
 }
 
-void MqttManager::publishMessage(const char* message, const char* topic) {
+void MqttManager::publishMessage(const char* message, const char* topic, bool retain) {
   if(topic == nullptr) {
     topic = stateTopic;
   }
 
-  bool success = client.publish(topic, message, true);
+  bool success = client.publish(topic, message, retain);
 }
   
 void MqttManager::setCallback(void (*callback)(char* topic, byte* payload, unsigned int length)) {
